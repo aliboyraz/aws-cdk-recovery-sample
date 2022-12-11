@@ -1,0 +1,142 @@
+{
+  "version": "21.0.0",
+  "artifacts": {
+    "ProjectsStack.assets": {
+      "type": "cdk:asset-manifest",
+      "properties": {
+        "file": "ProjectsStack.assets.json",
+        "requiresBootstrapStackVersion": 6,
+        "bootstrapStackVersionSsmParameter": "/cdk-bootstrap/hnb659fds/version"
+      }
+    },
+    "ProjectsStack": {
+      "type": "aws:cloudformation:stack",
+      "environment": "aws://unknown-account/unknown-region",
+      "properties": {
+        "templateFile": "ProjectsStack.template.json",
+        "validateOnSynth": false,
+        "assumeRoleArn": "arn:${AWS::Partition}:iam::${AWS::AccountId}:role/cdk-hnb659fds-deploy-role-${AWS::AccountId}-${AWS::Region}",
+        "cloudFormationExecutionRoleArn": "arn:${AWS::Partition}:iam::${AWS::AccountId}:role/cdk-hnb659fds-cfn-exec-role-${AWS::AccountId}-${AWS::Region}",
+        "stackTemplateAssetObjectUrl": "s3://cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}/334c0ea0d16a53f3b6a36a6819676f5221caea76c8993f31feb1e789943a548d.json",
+        "requiresBootstrapStackVersion": 6,
+        "bootstrapStackVersionSsmParameter": "/cdk-bootstrap/hnb659fds/version",
+        "additionalDependencies": [
+          "ProjectsStack.assets"
+        ],
+        "lookupRole": {
+          "arn": "arn:${AWS::Partition}:iam::${AWS::AccountId}:role/cdk-hnb659fds-lookup-role-${AWS::AccountId}-${AWS::Region}",
+          "requiresBootstrapStackVersion": 8,
+          "bootstrapStackVersionSsmParameter": "/cdk-bootstrap/hnb659fds/version"
+        }
+      },
+      "dependencies": [
+        "ProjectsStack.assets"
+      ],
+      "metadata": {
+        "/ProjectsStack/SampleQueueDeadLetterQueue/Resource": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "SampleQueueDeadLetterQueue4D12C300"
+          }
+        ],
+        "/ProjectsStack/SampleQueue/Resource": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "SampleQueue49AAAEFF"
+          }
+        ],
+        "/ProjectsStack/SampleAppSQSConsumerHandler/ServiceRole/Resource": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "SampleAppSQSConsumerHandlerServiceRoleF1E47A7D"
+          }
+        ],
+        "/ProjectsStack/SampleAppSQSConsumerHandler/ServiceRole/DefaultPolicy/Resource": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "SampleAppSQSConsumerHandlerServiceRoleDefaultPolicyC7BC9BE5"
+          }
+        ],
+        "/ProjectsStack/SampleAppSQSConsumerHandler/Resource": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "SampleAppSQSConsumerHandler0CB50C60"
+          }
+        ],
+        "/ProjectsStack/SampleAppSQSConsumerHandler/SqsEventSource:ProjectsStackSampleQueue61871F74/Resource": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "SampleAppSQSConsumerHandlerSqsEventSourceProjectsStackSampleQueue61871F74871E7B7F"
+          }
+        ],
+        "/ProjectsStack/ValUStateMachineLogGroup/Resource": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "ValUStateMachineLogGroup0FB3ED21"
+          }
+        ],
+        "/ProjectsStack/TransactionStatusFunction/ServiceRole/Resource": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "TransactionStatusFunctionServiceRoleA5923BEF"
+          }
+        ],
+        "/ProjectsStack/TransactionStatusFunction/Resource": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "TransactionStatusFunction3861E20E"
+          }
+        ],
+        "/ProjectsStack/SampleAppTransactionStateMachine/Role/Resource": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "SampleAppTransactionStateMachineRoleEADD1AA0"
+          }
+        ],
+        "/ProjectsStack/SampleAppTransactionStateMachine/Role/DefaultPolicy/Resource": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "SampleAppTransactionStateMachineRoleDefaultPolicy740CAFC0"
+          }
+        ],
+        "/ProjectsStack/SampleAppTransactionStateMachine/Resource": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "SampleAppTransactionStateMachineC95168B7"
+          }
+        ],
+        "/ProjectsStack/CDKMetadata/Default": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "CDKMetadata"
+          }
+        ],
+        "/ProjectsStack/CDKMetadata/Condition": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "CDKMetadataAvailable"
+          }
+        ],
+        "/ProjectsStack/BootstrapVersion": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "BootstrapVersion"
+          }
+        ],
+        "/ProjectsStack/CheckBootstrapVersion": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "CheckBootstrapVersion"
+          }
+        ]
+      },
+      "displayName": "ProjectsStack"
+    },
+    "Tree": {
+      "type": "cdk:tree",
+      "properties": {
+        "file": "tree.json"
+      }
+    }
+  }
+}

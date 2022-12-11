@@ -1,0 +1,611 @@
+{
+ "Resources": {
+  "SampleQueueDeadLetterQueue4D12C300": {
+   "Type": "AWS::SQS::Queue",
+   "Properties": {
+    "KmsMasterKeyId": "alias/aws/sqs",
+    "MessageRetentionPeriod": 1209600,
+    "QueueName": "SampleQueueDeadLetterQueue"
+   },
+   "UpdateReplacePolicy": "Delete",
+   "DeletionPolicy": "Delete",
+   "Metadata": {
+    "aws:cdk:path": "ProjectsStack/SampleQueueDeadLetterQueue/Resource"
+   }
+  },
+  "SampleQueue49AAAEFF": {
+   "Type": "AWS::SQS::Queue",
+   "Properties": {
+    "KmsMasterKeyId": "alias/aws/sqs",
+    "QueueName": "SampleQueue",
+    "RedrivePolicy": {
+     "deadLetterTargetArn": {
+      "Fn::GetAtt": [
+       "SampleQueueDeadLetterQueue4D12C300",
+       "Arn"
+      ]
+     },
+     "maxReceiveCount": 1
+    },
+    "VisibilityTimeout": 35
+   },
+   "UpdateReplacePolicy": "Delete",
+   "DeletionPolicy": "Delete",
+   "Metadata": {
+    "aws:cdk:path": "ProjectsStack/SampleQueue/Resource"
+   }
+  },
+  "SampleAppSQSConsumerHandlerServiceRoleF1E47A7D": {
+   "Type": "AWS::IAM::Role",
+   "Properties": {
+    "AssumeRolePolicyDocument": {
+     "Statement": [
+      {
+       "Action": "sts:AssumeRole",
+       "Effect": "Allow",
+       "Principal": {
+        "Service": "lambda.amazonaws.com"
+       }
+      }
+     ],
+     "Version": "2012-10-17"
+    },
+    "ManagedPolicyArns": [
+     {
+      "Fn::Join": [
+       "",
+       [
+        "arn:",
+        {
+         "Ref": "AWS::Partition"
+        },
+        ":iam::aws:policy/service-role/AWSLambdaBasicExecutionRole"
+       ]
+      ]
+     }
+    ]
+   },
+   "Metadata": {
+    "aws:cdk:path": "ProjectsStack/SampleAppSQSConsumerHandler/ServiceRole/Resource"
+   }
+  },
+  "SampleAppSQSConsumerHandlerServiceRoleDefaultPolicyC7BC9BE5": {
+   "Type": "AWS::IAM::Policy",
+   "Properties": {
+    "PolicyDocument": {
+     "Statement": [
+      {
+       "Action": [
+        "sqs:ChangeMessageVisibility",
+        "sqs:DeleteMessage",
+        "sqs:GetQueueAttributes",
+        "sqs:GetQueueUrl",
+        "sqs:ReceiveMessage"
+       ],
+       "Effect": "Allow",
+       "Resource": {
+        "Fn::GetAtt": [
+         "SampleQueue49AAAEFF",
+         "Arn"
+        ]
+       }
+      }
+     ],
+     "Version": "2012-10-17"
+    },
+    "PolicyName": "SampleAppSQSConsumerHandlerServiceRoleDefaultPolicyC7BC9BE5",
+    "Roles": [
+     {
+      "Ref": "SampleAppSQSConsumerHandlerServiceRoleF1E47A7D"
+     }
+    ]
+   },
+   "Metadata": {
+    "aws:cdk:path": "ProjectsStack/SampleAppSQSConsumerHandler/ServiceRole/DefaultPolicy/Resource"
+   }
+  },
+  "SampleAppSQSConsumerHandler0CB50C60": {
+   "Type": "AWS::Lambda::Function",
+   "Properties": {
+    "Code": {
+     "S3Bucket": {
+      "Fn::Sub": "cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}"
+     },
+     "S3Key": "c445dc07b6c5f295f7593ee99b6589263e89f53583837f46b9ad8ea2e49ccece.zip"
+    },
+    "Role": {
+     "Fn::GetAtt": [
+      "SampleAppSQSConsumerHandlerServiceRoleF1E47A7D",
+      "Arn"
+     ]
+    },
+    "FunctionName": "SqsConsumerHandler",
+    "Handler": "lambda-sqs-consumer.handler",
+    "MemorySize": 512,
+    "Runtime": "nodejs14.x",
+    "Timeout": 30
+   },
+   "DependsOn": [
+    "SampleAppSQSConsumerHandlerServiceRoleDefaultPolicyC7BC9BE5",
+    "SampleAppSQSConsumerHandlerServiceRoleF1E47A7D"
+   ],
+   "Metadata": {
+    "aws:cdk:path": "ProjectsStack/SampleAppSQSConsumerHandler/Resource",
+    "aws:asset:path": "asset.c445dc07b6c5f295f7593ee99b6589263e89f53583837f46b9ad8ea2e49ccece",
+    "aws:asset:is-bundled": false,
+    "aws:asset:property": "Code"
+   }
+  },
+  "SampleAppSQSConsumerHandlerSqsEventSourceProjectsStackSampleQueue61871F74871E7B7F": {
+   "Type": "AWS::Lambda::EventSourceMapping",
+   "Properties": {
+    "FunctionName": {
+     "Ref": "SampleAppSQSConsumerHandler0CB50C60"
+    },
+    "EventSourceArn": {
+     "Fn::GetAtt": [
+      "SampleQueue49AAAEFF",
+      "Arn"
+     ]
+    }
+   },
+   "Metadata": {
+    "aws:cdk:path": "ProjectsStack/SampleAppSQSConsumerHandler/SqsEventSource:ProjectsStackSampleQueue61871F74/Resource"
+   }
+  },
+  "ValUStateMachineLogGroup0FB3ED21": {
+   "Type": "AWS::Logs::LogGroup",
+   "Properties": {
+    "LogGroupName": "ValUStateMachineLogs",
+    "RetentionInDays": 731
+   },
+   "UpdateReplacePolicy": "Retain",
+   "DeletionPolicy": "Retain",
+   "Metadata": {
+    "aws:cdk:path": "ProjectsStack/ValUStateMachineLogGroup/Resource"
+   }
+  },
+  "TransactionStatusFunctionServiceRoleA5923BEF": {
+   "Type": "AWS::IAM::Role",
+   "Properties": {
+    "AssumeRolePolicyDocument": {
+     "Statement": [
+      {
+       "Action": "sts:AssumeRole",
+       "Effect": "Allow",
+       "Principal": {
+        "Service": "lambda.amazonaws.com"
+       }
+      }
+     ],
+     "Version": "2012-10-17"
+    },
+    "ManagedPolicyArns": [
+     {
+      "Fn::Join": [
+       "",
+       [
+        "arn:",
+        {
+         "Ref": "AWS::Partition"
+        },
+        ":iam::aws:policy/service-role/AWSLambdaBasicExecutionRole"
+       ]
+      ]
+     }
+    ]
+   },
+   "Metadata": {
+    "aws:cdk:path": "ProjectsStack/TransactionStatusFunction/ServiceRole/Resource"
+   }
+  },
+  "TransactionStatusFunction3861E20E": {
+   "Type": "AWS::Lambda::Function",
+   "Properties": {
+    "Code": {
+     "S3Bucket": {
+      "Fn::Sub": "cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}"
+     },
+     "S3Key": "c445dc07b6c5f295f7593ee99b6589263e89f53583837f46b9ad8ea2e49ccece.zip"
+    },
+    "Role": {
+     "Fn::GetAtt": [
+      "TransactionStatusFunctionServiceRoleA5923BEF",
+      "Arn"
+     ]
+    },
+    "FunctionName": "TransactionStatusFunction",
+    "Handler": "transaction-status.handler",
+    "MemorySize": 512,
+    "Runtime": "nodejs14.x",
+    "Timeout": 30
+   },
+   "DependsOn": [
+    "TransactionStatusFunctionServiceRoleA5923BEF"
+   ],
+   "Metadata": {
+    "aws:cdk:path": "ProjectsStack/TransactionStatusFunction/Resource",
+    "aws:asset:path": "asset.c445dc07b6c5f295f7593ee99b6589263e89f53583837f46b9ad8ea2e49ccece",
+    "aws:asset:is-bundled": false,
+    "aws:asset:property": "Code"
+   }
+  },
+  "SampleAppTransactionStateMachineRoleEADD1AA0": {
+   "Type": "AWS::IAM::Role",
+   "Properties": {
+    "AssumeRolePolicyDocument": {
+     "Statement": [
+      {
+       "Action": "sts:AssumeRole",
+       "Effect": "Allow",
+       "Principal": {
+        "Service": "states.amazonaws.com"
+       }
+      }
+     ],
+     "Version": "2012-10-17"
+    }
+   },
+   "Metadata": {
+    "aws:cdk:path": "ProjectsStack/SampleAppTransactionStateMachine/Role/Resource"
+   }
+  },
+  "SampleAppTransactionStateMachineRoleDefaultPolicy740CAFC0": {
+   "Type": "AWS::IAM::Policy",
+   "Properties": {
+    "PolicyDocument": {
+     "Statement": [
+      {
+       "Action": [
+        "logs:CreateLogDelivery",
+        "logs:DeleteLogDelivery",
+        "logs:DescribeLogGroups",
+        "logs:DescribeResourcePolicies",
+        "logs:GetLogDelivery",
+        "logs:ListLogDeliveries",
+        "logs:PutResourcePolicy",
+        "logs:UpdateLogDelivery",
+        "xray:GetSamplingRules",
+        "xray:GetSamplingTargets",
+        "xray:PutTelemetryRecords",
+        "xray:PutTraceSegments"
+       ],
+       "Effect": "Allow",
+       "Resource": "*"
+      },
+      {
+       "Action": "lambda:InvokeFunction",
+       "Effect": "Allow",
+       "Resource": [
+        {
+         "Fn::GetAtt": [
+          "TransactionStatusFunction3861E20E",
+          "Arn"
+         ]
+        },
+        {
+         "Fn::Join": [
+          "",
+          [
+           {
+            "Fn::GetAtt": [
+             "TransactionStatusFunction3861E20E",
+             "Arn"
+            ]
+           },
+           ":*"
+          ]
+         ]
+        }
+       ]
+      }
+     ],
+     "Version": "2012-10-17"
+    },
+    "PolicyName": "SampleAppTransactionStateMachineRoleDefaultPolicy740CAFC0",
+    "Roles": [
+     {
+      "Ref": "SampleAppTransactionStateMachineRoleEADD1AA0"
+     }
+    ]
+   },
+   "Metadata": {
+    "aws:cdk:path": "ProjectsStack/SampleAppTransactionStateMachine/Role/DefaultPolicy/Resource"
+   }
+  },
+  "SampleAppTransactionStateMachineC95168B7": {
+   "Type": "AWS::StepFunctions::StateMachine",
+   "Properties": {
+    "RoleArn": {
+     "Fn::GetAtt": [
+      "SampleAppTransactionStateMachineRoleEADD1AA0",
+      "Arn"
+     ]
+    },
+    "DefinitionString": {
+     "Fn::Join": [
+      "",
+      [
+       "{\"StartAt\":\"TransactionStatus\",\"States\":{\"TransactionStatus\":{\"Next\":\"$.continue\",\"Retry\":[{\"ErrorEquals\":[\"Lambda.ServiceException\",\"Lambda.AWSLambdaException\",\"Lambda.SdkClientException\"],\"IntervalSeconds\":2,\"MaxAttempts\":6,\"BackoffRate\":2}],\"Type\":\"Task\",\"OutputPath\":\"$.Payload\",\"Resource\":\"arn:",
+       {
+        "Ref": "AWS::Partition"
+       },
+       ":states:::lambda:invoke\",\"Parameters\":{\"FunctionName\":\"",
+       {
+        "Fn::GetAtt": [
+         "TransactionStatusFunction3861E20E",
+         "Arn"
+        ]
+       },
+       "\",\"Payload.$\":\"$\"}},\"Wait\":{\"Type\":\"Wait\",\"SecondsPath\":\"$.wait\",\"Next\":\"TransactionStatus\"},\"$.continue\":{\"Type\":\"Choice\",\"Choices\":[{\"Variable\":\"$.continue\",\"BooleanEquals\":true,\"Next\":\"Wait\"}],\"Default\":\"Done\"},\"Done\":{\"Type\":\"Pass\",\"End\":true}}}"
+      ]
+     ]
+    },
+    "LoggingConfiguration": {
+     "Destinations": [
+      {
+       "CloudWatchLogsLogGroup": {
+        "LogGroupArn": {
+         "Fn::GetAtt": [
+          "ValUStateMachineLogGroup0FB3ED21",
+          "Arn"
+         ]
+        }
+       }
+      }
+     ],
+     "IncludeExecutionData": true,
+     "Level": "ALL"
+    },
+    "TracingConfiguration": {
+     "Enabled": true
+    }
+   },
+   "DependsOn": [
+    "SampleAppTransactionStateMachineRoleDefaultPolicy740CAFC0",
+    "SampleAppTransactionStateMachineRoleEADD1AA0"
+   ],
+   "Metadata": {
+    "aws:cdk:path": "ProjectsStack/SampleAppTransactionStateMachine/Resource"
+   }
+  },
+  "CDKMetadata": {
+   "Type": "AWS::CDK::Metadata",
+   "Properties": {
+    "Analytics": "v2:deflate64:H4sIAAAAAAAA/2WQwU7DMAyGn4V7aiiIA0dWAUIaEnQHjlWWep3XNil1UoSivDtJNiYQJ//2H8effQ23JZQX8pML1fbFQFvwGytVL2Kp8fzB4N8cOhTVTmcRxCDHbSvBPzqtLBmdrLN+WFDbjXGzwhc5TaS7ZP+vBkFyBF+bIX+d46sZSH2l9KiC4JtGMqNluE8h5rByqke7koxiMF3EW5vuaTZuSn0/OnZanHYnKG6s5J5hncGf9WJ6/PsA/LskK6q9IRU54kwRr2AjrNqTzoS/8xBEjZzXERksmt1p1bMRdWV0S2lAENq0CAe+XMo7uIoXPzBRMTttaUSoj/EbfAptII0BAAA="
+   },
+   "Metadata": {
+    "aws:cdk:path": "ProjectsStack/CDKMetadata/Default"
+   },
+   "Condition": "CDKMetadataAvailable"
+  }
+ },
+ "Conditions": {
+  "CDKMetadataAvailable": {
+   "Fn::Or": [
+    {
+     "Fn::Or": [
+      {
+       "Fn::Equals": [
+        {
+         "Ref": "AWS::Region"
+        },
+        "af-south-1"
+       ]
+      },
+      {
+       "Fn::Equals": [
+        {
+         "Ref": "AWS::Region"
+        },
+        "ap-east-1"
+       ]
+      },
+      {
+       "Fn::Equals": [
+        {
+         "Ref": "AWS::Region"
+        },
+        "ap-northeast-1"
+       ]
+      },
+      {
+       "Fn::Equals": [
+        {
+         "Ref": "AWS::Region"
+        },
+        "ap-northeast-2"
+       ]
+      },
+      {
+       "Fn::Equals": [
+        {
+         "Ref": "AWS::Region"
+        },
+        "ap-south-1"
+       ]
+      },
+      {
+       "Fn::Equals": [
+        {
+         "Ref": "AWS::Region"
+        },
+        "ap-southeast-1"
+       ]
+      },
+      {
+       "Fn::Equals": [
+        {
+         "Ref": "AWS::Region"
+        },
+        "ap-southeast-2"
+       ]
+      },
+      {
+       "Fn::Equals": [
+        {
+         "Ref": "AWS::Region"
+        },
+        "ca-central-1"
+       ]
+      },
+      {
+       "Fn::Equals": [
+        {
+         "Ref": "AWS::Region"
+        },
+        "cn-north-1"
+       ]
+      },
+      {
+       "Fn::Equals": [
+        {
+         "Ref": "AWS::Region"
+        },
+        "cn-northwest-1"
+       ]
+      }
+     ]
+    },
+    {
+     "Fn::Or": [
+      {
+       "Fn::Equals": [
+        {
+         "Ref": "AWS::Region"
+        },
+        "eu-central-1"
+       ]
+      },
+      {
+       "Fn::Equals": [
+        {
+         "Ref": "AWS::Region"
+        },
+        "eu-north-1"
+       ]
+      },
+      {
+       "Fn::Equals": [
+        {
+         "Ref": "AWS::Region"
+        },
+        "eu-south-1"
+       ]
+      },
+      {
+       "Fn::Equals": [
+        {
+         "Ref": "AWS::Region"
+        },
+        "eu-west-1"
+       ]
+      },
+      {
+       "Fn::Equals": [
+        {
+         "Ref": "AWS::Region"
+        },
+        "eu-west-2"
+       ]
+      },
+      {
+       "Fn::Equals": [
+        {
+         "Ref": "AWS::Region"
+        },
+        "eu-west-3"
+       ]
+      },
+      {
+       "Fn::Equals": [
+        {
+         "Ref": "AWS::Region"
+        },
+        "me-south-1"
+       ]
+      },
+      {
+       "Fn::Equals": [
+        {
+         "Ref": "AWS::Region"
+        },
+        "sa-east-1"
+       ]
+      },
+      {
+       "Fn::Equals": [
+        {
+         "Ref": "AWS::Region"
+        },
+        "us-east-1"
+       ]
+      },
+      {
+       "Fn::Equals": [
+        {
+         "Ref": "AWS::Region"
+        },
+        "us-east-2"
+       ]
+      }
+     ]
+    },
+    {
+     "Fn::Or": [
+      {
+       "Fn::Equals": [
+        {
+         "Ref": "AWS::Region"
+        },
+        "us-west-1"
+       ]
+      },
+      {
+       "Fn::Equals": [
+        {
+         "Ref": "AWS::Region"
+        },
+        "us-west-2"
+       ]
+      }
+     ]
+    }
+   ]
+  }
+ },
+ "Parameters": {
+  "BootstrapVersion": {
+   "Type": "AWS::SSM::Parameter::Value<String>",
+   "Default": "/cdk-bootstrap/hnb659fds/version",
+   "Description": "Version of the CDK Bootstrap resources in this environment, automatically retrieved from SSM Parameter Store. [cdk:skip]"
+  }
+ },
+ "Rules": {
+  "CheckBootstrapVersion": {
+   "Assertions": [
+    {
+     "Assert": {
+      "Fn::Not": [
+       {
+        "Fn::Contains": [
+         [
+          "1",
+          "2",
+          "3",
+          "4",
+          "5"
+         ],
+         {
+          "Ref": "BootstrapVersion"
+         }
+        ]
+       }
+      ]
+     },
+     "AssertDescription": "CDK bootstrap stack version 6 required. Please run 'cdk bootstrap' with a recent version of the CDK CLI."
+    }
+   ]
+  }
+ }
+}
